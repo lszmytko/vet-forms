@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Laboratoryjny - Weterynaria</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #0B2D5A;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Kategorie - nawigacja */
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .category-btn {
+            padding: 12px 20px;
+            border: 2px solid #0B2D5A;
+            background: white;
+            color: #0B2D5A;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background: #0B2D5A;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(11, 45, 90, 0.3);
+        }
+
+        .category-btn.active {
+            background: #F58220;
+            border-color: #F58220;
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 130, 32, 0.4);
+        }
+
+        /* Formularz */
+        .calculator-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(11, 45, 90, 0.15);
+            padding: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #0B2D5A;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #F58220;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(245, 130, 32, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%230B2D5A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+        }
+
+        /* Sekcja konwersji */
+        .conversion-section {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 25px;
+        }
+
+        .conversion-section .form-group {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 600px) {
+            .conversion-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-with-unit {
+            position: relative;
+        }
+
+        .unit-label {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 0.9rem;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        .input-with-unit input {
+            padding-right: 80px;
+            height: 80px;
+        }
+
+        .arrow-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #F58220;
+            font-size: 2.5rem;
+            font-weight: bold;
+            min-width: 50px;
+            height: 80px;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #0B2D5A 0%, #1a4a8a 100%);
+            border-radius: 12px;
+            padding: 15px 20px;
+            text-align: center;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-box .result-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .result-box .result-value {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .result-box .result-unit {
+            color: #F58220;
+            font-size: 1rem;
+            margin-left: 5px;
+        }
+
+        /* Info box */
+        .info-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #F58220;
+        }
+
+        .info-box p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: #0B2D5A;
+        }
+
+        /* Kierunek konwersji */
+        .direction-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .direction-btn {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #666;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .direction-btn.active {
+            border-color: #0B2D5A;
+            background: #0B2D5A;
+            color: white;
+        }
+
+        .direction-btn:hover:not(.active) {
+            border-color: #0B2D5A;
+            color: #0B2D5A;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kalkulator Laboratoryjny</h1>
+            <p class="subtitle">Przelicznik jednostek dla weterynarii</p>
+        </header>
+
+        <!-- Kategorie - generowane dynamicznie -->
+        <div class="categories" id="categoriesContainer">
+            <!-- Przyciski kategorii będą generowane przez JS -->
+        </div>
+
+        <!-- Kalkulator -->
+        <div class="calculator-card">
+            <div class="form-group">
+                <label for="substance">Wybierz substancję</label>
+                <select id="substance">
+                    <!-- Opcje będą dodawane dynamicznie -->
+                </select>
+            </div>
+
+            <!-- Kierunek konwersji -->
+            <div class="direction-toggle">
+                <button class="direction-btn active" data-direction="toSI">Konwencjonalne → SI</button>
+                <button class="direction-btn" data-direction="toConv">SI → Konwencjonalne</button>
+            </div>
+
+            <!-- Sekcja konwersji -->
+            <div class="conversion-section">
+                <div class="form-group">
+                    <label for="inputValue">Wartość wejściowa</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="inputValue" step="any" placeholder="Wpisz wartość">
+                        <span class="unit-label" id="inputUnit">mg/dl</span>
+                    </div>
+                </div>
+
+                <div class="arrow-icon">→</div>
+
+                <div class="form-group">
+                    <label>Wynik</label>
+                    <div class="result-box">
+                        <div class="result-label">Wartość w jednostkach SI</div>
+                        <div>
+                            <span class="result-value" id="resultValue">-</span>
+                            <span class="result-unit" id="resultUnit">mmol/l</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p><strong>Współczynnik:</strong> <span id="factorInfo">-</span></p>
+                <p><strong>Wzór:</strong> <span id="formulaInfo">Wartość × współczynnik = wynik</span></p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Kalkulator jednostek laboratoryjnych dla weterynarzy</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dane kalkulatora
+        const vetPracaData = {
+            theme: {
+                primaryOrange: "#F58220",
+                primaryNavy: "#0B2D5A"
+            },
+            categories: {
+                elektrolity: {
+                    label: "Elektrolity i pierwiastki śladowe",
+                    items: [
+                        { name: "Chlorki", unitConv: "mg/dl", factor: 0.2821, unitSI: "mmol/l" },
+                        { name: "Cynk", unitConv: "mg/l", factor: 15.3, unitSI: "µmol/l" },
+                        { name: "Fosfor nieorganiczny", unitConv: "mg/dl", factor: 0.3229, unitSI: "mmol/l" },
+                        { name: "Magnez", unitConv: "mg/dl", factor: 0.4113, unitSI: "mmol/l" },
+                        { name: "Miedź", unitConv: "µg/dl", factor: 0.1574, unitSI: "µmol/l" },
+                        { name: "Potas", unitConv: "mg/dl", factor: 0.2557, unitSI: "mmol/l" },
+                        { name: "Selen", unitConv: "µg/l", factor: 0.0127, unitSI: "µmol/l" },
+                        { name: "Sód", unitConv: "mg/dl", factor: 0.435, unitSI: "mmol/l" },
+                        { name: "Wapń", unitConv: "mg/dl", factor: 0.2495, unitSI: "mmol/l" },
+                        { name: "Żelazo", unitConv: "µg/dl", factor: 0.1791, unitSI: "µmol/l" }
+                    ]
+                },
+                substraty: {
+                    label: "Substraty",
+                    items: [
+                        { name: "Amoniak", unitConv: "µg/dl", factor: 0.554, unitSI: "µmol/l" },
+                        { name: "Białko całkowite", unitConv: "g/dl", factor: 10, unitSI: "g/l" },
+                        { name: "Bilirubina", unitConv: "mg/dl", factor: 17.104, unitSI: "µmol/l" },
+                        { name: "BUN", unitConv: "mg/dl", factor: 0.357, unitSI: "mmol/l" },
+                        { name: "Cholesterol", unitConv: "mg/dl", factor: 0.0259, unitSI: "mmol/l" },
+                        { name: "Glukoza", unitConv: "mg/dl", factor: 0.0555, unitSI: "mmol/l" },
+                        { name: "Karoten", unitConv: "µg/l", factor: 0.00186, unitSI: "µmol/l" },
+                        { name: "Kreatynina", unitConv: "mg/dl", factor: 88.402, unitSI: "µmol/l" },
+                        { name: "Kwas mlekowy", unitConv: "mg/dl", factor: 0.111, unitSI: "mmol/l" },
+                        { name: "Kwas moczowy", unitConv: "mg/dl", factor: 59.485, unitSI: "µmol/l" },
+                        { name: "Mocznik", unitConv: "mg/dl", factor: 0.1665, unitSI: "mmol/l" },
+                        { name: "Trójglicerydy", unitConv: "mg/dl", factor: 0.0114, unitSI: "mmol/l" }
+                    ]
+                },
+                mocznikBun: {
+                    label: "Mocznik - BUN",
+                    items: [
+                        { name: "Mocznik (mg/dl) do BUN", unitConv: "mg/dl", factor: 0.46, unitSI: "mg/dl (BUN)" },
+                        { name: "Mocznik (mmol/l) do BUN", unitConv: "mmol/l", factor: 2.8, unitSI: "mg/dl (BUN)" }
+                    ]
+                },
+                hormony: {
+                    label: "Hormony",
+                    items: [
+                        { name: "T3", unitConv: "ng/ml", factor: 1.54, unitSI: "nmol/l" },
+                        { name: "fT4", unitConv: "ng/dl", factor: 12.87, unitSI: "pmol/l" },
+                        { name: "T4", unitConv: "µg/dl", factor: 12.87, unitSI: "nmol/l" },
+                        { name: "Estradiol", unitConv: "pg/ml", factor: 3.671, unitSI: "pmol/l" },
+                        { name: "Kortyzol", unitConv: "µg/dl", factor: 0.0276, unitSI: "µmol/l" },
+                        { name: "Progesteron", unitConv: "ng/ml", factor: 3.18, unitSI: "nmol/l" },
+                        { name: "Testosteron", unitConv: "ng/ml", factor: 3.467, unitSI: "nmol/l" }
+                    ]
+                },
+                leki: {
+                    label: "Leki",
+                    items: [
+                        { name: "Bromek", unitConv: "mg/l", factor: 0.013, unitSI: "mmol/l" },
+                        { name: "Cyklosporyna", unitConv: "ng/ml", factor: 0.833, unitSI: "nmol/l" },
+                        { name: "Diazepam", unitConv: "µg/l", factor: 0.0035, unitSI: "µmol/l" },
+                        { name: "Digoksyna", unitConv: "µg/l", factor: 1.28, unitSI: "nmol/l" },
+                        { name: "Levetiracetam", unitConv: "mg/l", factor: 5.875, unitSI: "µmol/l" }
+                    ]
+                },
+                witaminy: {
+                    label: "Witaminy",
+                    items: [
+                        { name: "Kwas foliowy", unitConv: "ng/ml", factor: 2.266, unitSI: "nmol/l" },
+                        { name: "Witamina A (retinol)", unitConv: "µg/l", factor: 0.00349, unitSI: "µmol/l" },
+                        { name: "Witamina B1 (tiamina)", unitConv: "µg/l", factor: 3.77, unitSI: "nmol/l" },
+                        { name: "Witamina B2 (ryboflawina)", unitConv: "µg/l", factor: 2.657, unitSI: "nmol/l" },
+                        { name: "Witamina B6", unitConv: "µg/l", factor: 4.046, unitSI: "nmol/l" },
+                        { name: "Witamina B12", unitConv: "pg/ml", factor: 0.738, unitSI: "pmol/l" },
+                        { name: "Witamina D3 (25-OH)", unitConv: "ng/ml", factor: 2.496, unitSI: "nmol/l" },
+                        { name: "Witamina E (tokoferol)", unitConv: "mg/l", factor: 2.322, unitSI: "µmol/l" },
+                        { name: "Witamina H (biotyna)", unitConv: "ng/l", factor: 0.0041, unitSI: "nmol/l" }
+                    ]
+                }
+            }
+        };
+
+        // Stan aplikacji
+        let currentCategory = 'elektrolity';
+        let currentDirection = 'toSI';
+        let currentSubstance = null;
+
+        // Elementy DOM
+        const categoriesContainer = document.getElementById('categoriesContainer');
+        const substanceSelect = document.getElementById('substance');
+        const inputValue = document.getElementById('inputValue');
+        const inputUnit = document.getElementById('inputUnit');
+        const resultValue = document.getElementById('resultValue');
+        const resultUnit = document.getElementById('resultUnit');
+        const factorInfo = document.getElementById('factorInfo');
+        const formulaInfo = document.getElementById('formulaInfo');
+
+        // Inicjalizacja
+        function init() {
+            // Generowanie przycisków kategorii
+            generateCategoryButtons();
+
+            // Obsługa kierunku konwersji
+            document.querySelectorAll('.direction-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentDirection = btn.dataset.direction;
+                    updateUnits();
+                    resetResult();
+                });
+            });
+
+            // Obsługa zmiany substancji
+            substanceSelect.addEventListener('change', () => {
+                updateUnits();
+                resetResult();
+            });
+
+            // Obliczanie na Enter
+            inputValue.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    calculate();
+                }
+            });
+
+            // Obliczanie w czasie rzeczywistym
+            inputValue.addEventListener('input', () => {
+                if (inputValue.value) {
+                    calculate();
+                } else {
+                    resetResult();
+                }
+            });
+
+            // Załaduj początkową listę
+            updateSubstanceList();
+        }
+
+        // Generowanie przycisków kategorii
+        function generateCategoryButtons() {
+            categoriesContainer.innerHTML = '';
+
+            Object.entries(vetPracaData.categories).forEach(([key, category], index) => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn' + (index === 0 ? ' active' : '');
+                btn.dataset.category = key;
+                btn.textContent = category.label;
+
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCategory = key;
+                    updateSubstanceList();
+                    resetResult();
+                });
+
+                categoriesContainer.appendChild(btn);
+            });
+        }
+
+        // Aktualizacja listy substancji
+        function updateSubstanceList() {
+            const substances = vetPracaData.categories[currentCategory].items;
+            substanceSelect.innerHTML = '';
+
+            substances.forEach((sub, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = sub.name;
+                substanceSelect.appendChild(option);
+            });
+
+            updateUnits();
+        }
+
+        // Aktualizacja jednostek
+        function updateUnits() {
+            const substances = vetPracaData.categories[currentCategory].items;
+            const selectedIndex = substanceSelect.value;
+            currentSubstance = substances[selectedIndex];
+
+            if (currentDirection === 'toSI') {
+                inputUnit.textContent = currentSubstance.unitConv;
+                resultUnit.textContent = currentSubstance.unitSI;
+                document.querySelector('.result-label').textContent = 'Wartość w jednostkach SI';
+            } else {
+                inputUnit.textContent = currentSubstance.unitSI;
+                resultUnit.textContent = currentSubstance.unitConv;
+                document.querySelector('.result-label').textContent = 'Wartość w jednostkach konwencjonalnych';
+            }
+
+            // Aktualizacja info o współczynniku
+            factorInfo.textContent = currentSubstance.factor;
+            updateFormula();
+        }
+
+        // Aktualizacja wzoru
+        function updateFormula() {
+            if (currentDirection === 'toSI') {
+                formulaInfo.textContent = `${currentSubstance.unitConv} × ${currentSubstance.factor} = ${currentSubstance.unitSI}`;
+            } else {
+                formulaInfo.textContent = `${currentSubstance.unitSI} ÷ ${currentSubstance.factor} = ${currentSubstance.unitConv}`;
+            }
+        }
+
+        // Obliczanie
+        function calculate() {
+            const value = parseFloat(inputValue.value);
+
+            if (isNaN(value)) {
+                resultValue.textContent = '-';
+                return;
+            }
+
+            let result;
+            if (currentDirection === 'toSI') {
+                result = value * currentSubstance.factor;
+            } else {
+                result = value / currentSubstance.factor;
+            }
+
+            // Formatowanie wyniku
+            if (result === 0) {
+                resultValue.textContent = '0';
+            } else if (Math.abs(result) < 0.001) {
+                resultValue.textContent = result.toExponential(3);
+            } else if (Math.abs(result) >= 10000) {
+                resultValue.textContent = result.toExponential(3);
+            } else {
+                resultValue.textContent = parseFloat(result.toPrecision(6));
+            }
+        }
+
+        // Reset wyniku
+        function resetResult() {
+            resultValue.textContent = '-';
+        }
+
+        // Start aplikacji
+        init();
+    </script>
+</body>
+</html>
